@@ -5,5 +5,7 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.SimpleFileReader" parent="Base.Theme.SimpleFileReader" />
+    <style name="Theme.SimpleFileReader" parent="Base.Theme.SimpleFileReader" >
+        <item name="fontFamily">@font/opensans</item>
+    </style>
 </resources>
