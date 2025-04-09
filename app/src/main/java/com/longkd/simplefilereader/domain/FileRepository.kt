@@ -1,8 +1,8 @@
 package com.longkd.simplefilereader.domain
 
-import com.longkd.simplefilereader.domain.model.File
+import com.longkd.simplefilereader.domain.model.FileDTO
 import kotlinx.coroutines.flow.Flow
 
 interface FileRepository {
-    fun getFiles(): Flow<List<File>>
+    fun getFiles(): Flow<List<FileDTO>>
 }

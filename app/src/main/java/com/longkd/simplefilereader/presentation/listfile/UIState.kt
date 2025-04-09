@@ -1,6 +1,6 @@
 package com.longkd.simplefilereader.presentation.listfile
 
-import com.longkd.simplefilereader.domain.model.File
+import com.longkd.simplefilereader.presentation.listfile.model.File
 
 sealed interface UiState {
     data object Loading : UiState
