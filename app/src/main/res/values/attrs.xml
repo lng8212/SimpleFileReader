@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PdfRenderView">
+        <attr name="pdfView_page_margin" format="reference|dimension" />
+        <attr name="pdfView_page_marginLeft" format="reference|dimension" />
+        <attr name="pdfView_page_marginTop" format="reference|dimension" />
+        <attr name="pdfView_page_marginRight" format="reference|dimension" />
+        <attr name="pdfView_page_marginBottom" format="reference|dimension" />
+    </declare-styleable>
+
+</resources>

@@ -28,6 +28,12 @@ class FileDataSource @Inject constructor(
         "application/vnd.ms-excel"
     )
 
+    private val selection = supportedMimeTypes.joinToString(" OR ") {
+        "${MediaStore.Files.FileColumns.MIME_TYPE} = ?"
+    }
+
+    private val sortOrder = "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC"
+
     fun getFiles(): List<FileObject> {
         val mediaFiles = getMediaStoreFiles()
         val safFiles = prefsManager.getFolderUri()?.let { getFilesFromSaf(it) } ?: emptyList()
@@ -51,12 +57,6 @@ class FileDataSource @Inject constructor(
                 MediaStore.Files.FileColumns.DATE_MODIFIED,
                 MediaStore.Files.FileColumns.SIZE
             )
-
-            val selection = supportedMimeTypes.joinToString(" OR ") {
-                "${MediaStore.Files.FileColumns.MIME_TYPE} = ?"
-            }
-
-            val sortOrder = "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC"
 
             context.contentResolver.query(
                 collection,
@@ -92,20 +92,28 @@ class FileDataSource @Inject constructor(
 
     private fun getFilesFromSaf(uri: Uri): List<FileObject> {
         val fileList = mutableListOf<FileObject>()
-        context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        context.contentResolver.takePersistableUriPermission(
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+        )
 
         val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(
             uri,
             DocumentsContract.getTreeDocumentId(uri)
         )
 
-        context.contentResolver.query(childrenUri, arrayOf(
-            DocumentsContract.Document.COLUMN_DISPLAY_NAME,
-            DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-            DocumentsContract.Document.COLUMN_MIME_TYPE,
-            DocumentsContract.Document.COLUMN_SIZE,
-            DocumentsContract.Document.COLUMN_LAST_MODIFIED
-        ), null, null, null)?.use { cursor ->
+        context.contentResolver.query(
+            childrenUri, arrayOf(
+                DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                DocumentsContract.Document.COLUMN_MIME_TYPE,
+                DocumentsContract.Document.COLUMN_SIZE,
+                DocumentsContract.Document.COLUMN_LAST_MODIFIED
+            ),
+            selection,
+            supportedMimeTypes,
+            sortOrder
+        )?.use { cursor ->
             while (cursor.moveToNext()) {
                 val name = cursor.getString(0)
                 val documentId = cursor.getString(1)
