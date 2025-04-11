@@ -21,7 +21,7 @@
         tools:layout="@layout/fragment_pdf_viewer">
 
         <argument
-            android:name="uri"
-            app:argType="string" />
+            android:name="file"
+            app:argType="com.longkd.simplefilereader.presentation.listfile.model.File" />
     </fragment>
 </navigation>

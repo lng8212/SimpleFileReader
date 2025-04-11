@@ -58,7 +58,7 @@ class PdfRenderCore(
     private fun addBitmapToMemoryCache(pageNo: Int, bitmap: Bitmap) =
         cacheManager.addBitmapToCache(pageNo, bitmap)
 
-    fun pageExistInCache(pageNo: Int): Boolean = cacheManager.pageExistsInCache(pageNo)
+    private fun pageExistInCache(pageNo: Int): Boolean = cacheManager.pageExistsInCache(pageNo)
 
     fun getPageCount(): Int = if (!isRendererOpen) 0 else pageCount.get()
 

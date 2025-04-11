@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">SimpleFileReader</string>
     <string name="pdfView_page_no">%1$d of %2$d</string>
+    <string name="text_list_file">List File</string>
+    <string name="open">Open with</string>
+    <string name="more">More</string>
 </resources>

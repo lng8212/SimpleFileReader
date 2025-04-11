@@ -41,6 +41,7 @@ class PdfRendererView @JvmOverloads constructor(
     private var positionToUseForState: Int = 0
     private var restoredScrollPosition: Int = NO_POSITION
     private var cacheStrategy: CacheStrategy = CacheStrategy.MAXIMIZE_PERFORMANCE
+    private var pdfRendererCoreInitialised = false
 
     val totalPageCount: Int
         get() {
@@ -67,6 +68,7 @@ class PdfRendererView @JvmOverloads constructor(
         PdfRenderCore.enableDebugMetrics = true
         pdfRendererCore =
             PdfRenderCore(context, fileDescriptor, cacheIdentifier, this.cacheStrategy)
+        pdfRendererCoreInitialised = true
         pdfViewAdapter = PdfViewAdapter(context, pdfRendererCore, pageMargin)
         val v = LayoutInflater.from(context).inflate(R.layout.view_pdf_render, this, false)
         addView(v)
@@ -75,7 +77,6 @@ class PdfRendererView @JvmOverloads constructor(
         recyclerView.apply {
             adapter = pdfViewAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-//            itemAnimator = DefaultItemAnimator()
             addOnScrollListener(scrollListener)
         }
 
@@ -205,6 +206,12 @@ class PdfRendererView @JvmOverloads constructor(
         }
     }
 
+    fun closePdfRender() {
+        if (pdfRendererCoreInitialised) {
+            pdfRendererCore.closePdfRender()
+            pdfRendererCoreInitialised = false
+        }
+    }
 
     override fun onSaveInstanceState(): Parcelable {
         val superState = super.onSaveInstanceState()

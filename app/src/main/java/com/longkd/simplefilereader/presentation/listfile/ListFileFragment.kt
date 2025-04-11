@@ -15,6 +15,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.longkd.simplefilereader.MainActivity
+import com.longkd.simplefilereader.R
 import com.longkd.simplefilereader.databinding.FragmentListFileBinding
 import com.longkd.simplefilereader.domain.model.FileType
 import com.longkd.simplefilereader.util.PermissionUtil
@@ -33,7 +35,7 @@ class ListFileFragment : Fragment() {
                 FileType.PDF -> {
                     val action =
                         ListFileFragmentDirections.actionListFileFragmentToPdfViewerFragment(
-                            file.contentUri.toString()
+                            file
                         )
                     findNavController().navigate(action)
                 }
@@ -80,6 +82,7 @@ class ListFileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        (activity as MainActivity).supportActionBar?.title = getString(R.string.text_list_file)
         initRecyclerView()
         startObserving()
 
