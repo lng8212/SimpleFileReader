@@ -9,5 +9,19 @@
         android:id="@+id/listFileFragment"
         android:name="com.longkd.simplefilereader.presentation.listfile.ListFileFragment"
         android:label="ListFileFragment"
-        tools:layout="@layout/fragment_list_file" />/>
+        tools:layout="@layout/fragment_list_file">
+        <action
+            android:id="@+id/action_listFileFragment_to_pdfViewerFragment"
+            app:destination="@id/pdfViewerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/pdfViewerFragment"
+        android:name="com.longkd.simplefilereader.presentation.pdfviewer.PdfViewerFragment"
+        android:label="PdfViewerFragment"
+        tools:layout="@layout/fragment_pdf_viewer">
+
+        <argument
+            android:name="file"
+            app:argType="com.longkd.simplefilereader.presentation.listfile.model.File" />
+    </fragment>
 </navigation>

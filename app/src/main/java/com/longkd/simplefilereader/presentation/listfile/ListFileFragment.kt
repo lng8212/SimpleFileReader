@@ -12,9 +12,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.longkd.simplefilereader.MainActivity
+import com.longkd.simplefilereader.R
 import com.longkd.simplefilereader.databinding.FragmentListFileBinding
+import com.longkd.simplefilereader.domain.model.FileType
 import com.longkd.simplefilereader.util.PermissionUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -26,7 +30,20 @@ class ListFileFragment : Fragment() {
     private val viewModel: ListFileViewModel by viewModels()
 
     private val adapter by lazy {
-        ListFileAdapter {
+        ListFileAdapter { file ->
+            when (file.fileType) {
+                FileType.PDF -> {
+                    val action =
+                        ListFileFragmentDirections.actionListFileFragmentToPdfViewerFragment(
+                            file
+                        )
+                    findNavController().navigate(action)
+                }
+
+                FileType.DOCX -> TODO()
+                FileType.XLSX -> TODO()
+                FileType.UNKNOWN -> TODO()
+            }
         }
     }
 
@@ -65,6 +82,7 @@ class ListFileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        (activity as MainActivity).supportActionBar?.title = getString(R.string.text_list_file)
         initRecyclerView()
         startObserving()
 

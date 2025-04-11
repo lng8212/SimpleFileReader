@@ -27,4 +27,6 @@ object FileUtils {
             else -> FileType.UNKNOWN
         }
     }
+
+    fun cachedFileNameWithFormat(name: Any, format: String = ".jpg") = "$name$format"
 }
