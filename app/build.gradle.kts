@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.longkd.simplefilereader"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -58,4 +58,8 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
+
+    // Apache POI dependencies
+    implementation("org.apache.poi:poi:5.2.3")
+    implementation("org.apache.poi:poi-ooxml:5.2.3")
 }

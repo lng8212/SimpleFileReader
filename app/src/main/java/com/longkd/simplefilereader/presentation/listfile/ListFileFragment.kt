@@ -28,7 +28,6 @@ class ListFileFragment : Fragment() {
     private var _binding: FragmentListFileBinding? = null
     private val binding get() = _binding!!
     private val viewModel: ListFileViewModel by viewModels()
-
     private val adapter by lazy {
         ListFileAdapter { file ->
             when (file.fileType) {
@@ -40,7 +39,14 @@ class ListFileFragment : Fragment() {
                     findNavController().navigate(action)
                 }
 
-                FileType.DOCX -> TODO()
+                FileType.DOCX -> {
+                    val action =
+                        ListFileFragmentDirections.actionListFileFragmentToDocViewerFragment(
+                            file
+                        )
+                    findNavController().navigate(action)
+                }
+
                 FileType.XLSX -> TODO()
                 FileType.UNKNOWN -> TODO()
             }
