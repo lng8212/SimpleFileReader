@@ -47,7 +47,13 @@ class ListFileFragment : Fragment() {
                     findNavController().navigate(action)
                 }
 
-                FileType.XLSX -> TODO()
+                FileType.XLSX -> {
+                    val action =
+                        ListFileFragmentDirections.actionListFileFragmentToDocViewerFragment(
+                            file
+                        )
+                    findNavController().navigate(action)
+                }
                 FileType.UNKNOWN -> TODO()
             }
         }
