@@ -82,9 +82,8 @@ This is a simple Android app to **read and display PDF, DOCX, and XLSX files** f
     
 
 ## Screenshot
-![Screenshot_20250427_225418](https://github.com/user-attachments/assets/bc1fbafe-434e-4337-9d53-8aaa24a251f5)
-![Screenshot_20250427_225554](https://github.com/user-attachments/assets/0b18e789-c171-4f7c-b40e-20a599500047)
-
+<img src="https://github.com/user-attachments/assets/bc1fbafe-434e-4337-9d53-8aaa24a251f5" width="300">
+<img src="https://github.com/user-attachments/assets/0b18e789-c171-4f7c-b40e-20a599500047" width="300">
 
 ## Note
 
