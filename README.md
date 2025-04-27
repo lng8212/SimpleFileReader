@@ -10,7 +10,7 @@ This is a simple Android app to **read and display PDF, DOCX, and XLSX files** f
         
     - **Optimized with cache** to make PDF rendering **smoother and faster**, especially when switching pages.
         
-- **DOCX and XLSX reading**:
+- **DOCX and XLSX reading** (see feature branches):
     
     - Supports reading DOCX and XLSX files using third-party libraries like:
         
