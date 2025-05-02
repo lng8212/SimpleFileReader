@@ -30,7 +30,7 @@ class ListFileViewModel @Inject constructor(
     private val _permissionState = MutableStateFlow<PermissionState>(PermissionState.NotRequested)
 
     val shouldRequestSafFolder: Boolean
-        get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && sharedPrefsManager.getFolderUri() == null
+        get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && sharedPrefsManager.getFolderUri() == null
 
     fun onFolderSelected(uri: Uri?) {
         if (uri != null) {
