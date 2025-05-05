@@ -76,7 +76,6 @@ class PdfRendererView @JvmOverloads constructor(
         pageNo = findViewById(R.id.pageNo)
         recyclerView.apply {
             adapter = pdfViewAdapter
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             addOnScrollListener(scrollListener)
         }
 
@@ -88,7 +87,7 @@ class PdfRendererView @JvmOverloads constructor(
         }, 500) // Adjust delay as needed
 
         runnable = Runnable {
-            pageNo.visibility = View.GONE
+            pageNo.visibility = GONE
         }
 
         // Start preloading cache into memory immediately after setting up adapter and RecyclerView
@@ -101,7 +100,7 @@ class PdfRendererView @JvmOverloads constructor(
 
         private val hideRunnable = Runnable {
             if (pageNo.isVisible) {
-                pageNo.visibility = View.GONE
+                pageNo.visibility = GONE
             }
         }
 
@@ -146,7 +145,7 @@ class PdfRendererView @JvmOverloads constructor(
             if (position != NO_POSITION) {
                 pageNo.text =
                     context.getString(R.string.pdfView_page_no, position + 1, totalPageCount)
-                pageNo.visibility = View.VISIBLE
+                pageNo.visibility = VISIBLE
 
                 // Remove any existing hide delays before scheduling a new one
                 pageNo.removeCallbacks(hideRunnable)

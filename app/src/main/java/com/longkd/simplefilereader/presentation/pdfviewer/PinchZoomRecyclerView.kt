@@ -38,7 +38,10 @@ class PinchZoomRecyclerView @JvmOverloads constructor(
 
     init {
         setWillNotDraw(false)
+        layoutManager = ZoomableLinearLayoutManager(context) { getCurrentScaleFactor() }
     }
+
+    fun getCurrentScaleFactor(): Float = scaleFactor
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(ev: MotionEvent): Boolean {
@@ -65,9 +68,9 @@ class PinchZoomRecyclerView @JvmOverloads constructor(
                         val x = ev.getX(pointerIndex)
                         val y = ev.getY(pointerIndex)
                         val dx = x - lastTouchX
-                        val dy = y - lastTouchY
+                        y - lastTouchY
                         posX += dx
-                        posY += dy
+//                        posY += dy
                         clampPosition()
                         invalidate()
 

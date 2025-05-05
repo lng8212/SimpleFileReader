@@ -40,7 +40,7 @@ class ListFileAdapter(
                     FileType.PDF -> R.drawable.ic_pdf
                     FileType.DOCX -> R.drawable.ic_doc
                     FileType.XLSX -> R.drawable.ic_xls
-                    FileType.UNKNOWN -> TODO()
+                    FileType.UNKNOWN -> R.drawable.ic_launcher_foreground
                 }
             )
         }
