@@ -8,12 +8,10 @@ import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
-import android.view.ViewConfiguration
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.graphics.withTranslation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlin.math.abs
 
 class PinchZoomRecyclerView @JvmOverloads constructor(
     context: Context,
@@ -25,12 +23,6 @@ class PinchZoomRecyclerView @JvmOverloads constructor(
     private var activePointerId = INVALID_POINTER_ID
     private val scaleDetector = ScaleGestureDetector(context, ScaleListener())
     private val gestureDetector = GestureDetector(context, GestureListener())
-
-    // For detecting when to intercept touch events
-    private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
-    private var initialTouchX = 0f
-    private var initialTouchY = 0f
-    private var hasDisallowedParentIntercept = false
 
     // Zoom and pan state
     private var scaleFactor = 1f
@@ -46,54 +38,13 @@ class PinchZoomRecyclerView @JvmOverloads constructor(
 
     init {
         setWillNotDraw(false)
+        layoutManager = ZoomableLinearLayoutManager(context) { getCurrentScaleFactor() }
     }
 
-    /**
-     * Intercepts touch events when zoomed in to handle panning properly
-     */
-    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        if (isZoomingInProgress) {
-            return true
-        }
-
-        // If we're zoomed in, we need to evaluate whether to intercept
-        if (scaleFactor > 1f) {
-            when (ev.actionMasked) {
-                MotionEvent.ACTION_DOWN -> {
-                    initialTouchX = ev.x
-                    initialTouchY = ev.y
-                    lastTouchX = ev.x
-                    lastTouchY = ev.y
-                    activePointerId = ev.getPointerId(0)
-                    hasDisallowedParentIntercept = false
-
-                    // Initially request parent not to intercept
-                    parent?.requestDisallowInterceptTouchEvent(true)
-                }
-
-                MotionEvent.ACTION_MOVE -> {
-                    val dx = abs(ev.x - initialTouchX)
-                    val dy = abs(ev.y - initialTouchY)
-
-                    // If we've moved enough to consider it a deliberate gesture
-                    if (dx > touchSlop || dy > touchSlop) {
-                        hasDisallowedParentIntercept = true
-
-                        // We're zoomed in, so we want to handle all touch events
-                        parent?.requestDisallowInterceptTouchEvent(true)
-                        return true
-                    }
-                }
-            }
-        }
-
-        // Not zoomed in, let RecyclerView decide normally
-        return super.onInterceptTouchEvent(ev)
-    }
+    fun getCurrentScaleFactor(): Float = scaleFactor
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(ev: MotionEvent): Boolean {
-        // Let gesture detectors see all events
         gestureDetector.onTouchEvent(ev)
         scaleDetector.onTouchEvent(ev)
 
@@ -101,64 +52,58 @@ class PinchZoomRecyclerView @JvmOverloads constructor(
             return true // Block RecyclerView scroll during zoom
         }
 
-        // If zoomed in, handle panning
-        if (scaleFactor > 1f) {
-            when (ev.actionMasked) {
-                MotionEvent.ACTION_DOWN -> {
-                    lastTouchX = ev.x
-                    lastTouchY = ev.y
-                    activePointerId = ev.getPointerId(0)
+        val superHandled = super.onTouchEvent(ev)
 
-                    // Ensure parent doesn't intercept when zoomed
-                    parent?.requestDisallowInterceptTouchEvent(true)
-                }
+        when (ev.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                lastTouchX = ev.x
+                lastTouchY = ev.y
+                activePointerId = ev.getPointerId(0)
+            }
 
-                MotionEvent.ACTION_MOVE -> {
-                    if (!scaleDetector.isInProgress) {
-                        val pointerIndex = ev.findPointerIndex(activePointerId)
-                        if (pointerIndex != -1) {
-                            val x = ev.getX(pointerIndex)
-                            val y = ev.getY(pointerIndex)
-                            val dx = x - lastTouchX
-                            val dy = y - lastTouchY
+            MotionEvent.ACTION_MOVE -> {
+                if (!scaleDetector.isInProgress && scaleFactor > 1f) {
+                    val pointerIndex = ev.findPointerIndex(activePointerId)
+                    if (pointerIndex != -1) {
+                        val x = ev.getX(pointerIndex)
+                        val y = ev.getY(pointerIndex)
+                        val dx = x - lastTouchX
+                        y - lastTouchY
+                        posX += dx
+//                        posY += dy
+                        clampPosition()
+                        invalidate()
 
-                            posX += dx
-                            posY += dy
-                            clampPosition()
-                            invalidate()
-
-                            lastTouchX = x
-                            lastTouchY = y
-                        }
-                    }
-                }
-
-                MotionEvent.ACTION_POINTER_UP -> {
-                    val pointerIndex = ev.actionIndex
-                    val pointerId = ev.getPointerId(pointerIndex)
-                    if (pointerId == activePointerId) {
-                        val newPointerIndex = if (pointerIndex == 0) 1 else 0
-                        lastTouchX = ev.getX(newPointerIndex)
-                        lastTouchY = ev.getY(newPointerIndex)
-                        activePointerId = ev.getPointerId(newPointerIndex)
-                    }
-                }
-
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    activePointerId = INVALID_POINTER_ID
-
-                    // Reset intercept flag when touch sequence ends
-                    if (hasDisallowedParentIntercept) {
-                        hasDisallowedParentIntercept = false
+                        lastTouchX = x
+                        lastTouchY = y
                     }
                 }
             }
 
-            return true // We've handled it when zoomed in
+            MotionEvent.ACTION_POINTER_UP -> {
+                val pointerIndex = ev.actionIndex
+                val pointerId = ev.getPointerId(pointerIndex)
+                if (pointerId == activePointerId) {
+                    val newPointerIndex = if (pointerIndex == 0) 1 else 0
+                    lastTouchX = ev.getX(newPointerIndex)
+                    lastTouchY = ev.getY(newPointerIndex)
+                    activePointerId = ev.getPointerId(newPointerIndex)
+                }
+            }
+
+            MotionEvent.ACTION_CANCEL -> {
+                activePointerId = INVALID_POINTER_ID
+            }
         }
 
-        // Not zoomed in, let RecyclerView handle normally
-        return super.onTouchEvent(ev)
+        return superHandled || scaleFactor > 1f
+    }
+
+    /**
+     * Intercepts vertical scroll only during pinch-to-zoom.
+     */
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        return if (isZoomingInProgress) true else super.onInterceptTouchEvent(ev)
     }
 
     /**
@@ -179,11 +124,10 @@ class PinchZoomRecyclerView @JvmOverloads constructor(
     }
 
     /**
-     * Only allow vertical scrolling when NOT zoomed in.
-     * When zoomed in, we're handling touch events ourselves for panning.
+     * Allow vertical scroll only when zoomed in.
      */
     override fun canScrollVertically(direction: Int): Boolean {
-        return scaleFactor <= 1f && super.canScrollVertically(direction)
+        return scaleFactor > 1f && super.canScrollVertically(direction)
     }
 
     /**
@@ -216,12 +160,10 @@ class PinchZoomRecyclerView @JvmOverloads constructor(
         return (averageHeight * itemCount * scaleFactor).toInt()
     }
 
-    /**
-     * Only allow fling when NOT zoomed in
-     */
     override fun fling(velocityX: Int, velocityY: Int): Boolean {
         return if (scaleFactor > 1f) {
-            false // Disable fling when zoomed in
+            // Only allow vertical fling when zoomed in
+            super.fling(0, velocityY)
         } else {
             super.fling(velocityX, velocityY)
         }
@@ -271,20 +213,14 @@ class PinchZoomRecyclerView @JvmOverloads constructor(
      * Clamps the panning translation to avoid over-scrolling beyond the content bounds.
      */
     private fun clampPosition() {
-        val viewWidth = width.toFloat()
-        val viewHeight = height.toFloat()
+        val contentWidth = width * scaleFactor
+        val contentHeight = height * scaleFactor
 
-        // Calculate the total width and height of the zoomed content
-        val zoomedWidth = viewWidth * scaleFactor
-        val zoomedHeight = viewHeight * scaleFactor
+        val maxPosX = if (contentWidth > width) contentWidth - width else 0f
+        val maxPosY = if (contentHeight > height) contentHeight - height else 0f
 
-        // Calculate how much the content can be panned
-        val maxPanX = (zoomedWidth - viewWidth) / 2
-        val maxPanY = (zoomedHeight - viewHeight) / 2
-
-        // Clamp the position values
-        posX = posX.coerceIn(-maxPanX, maxPanX)
-        posY = posY.coerceIn(-maxPanY, maxPanY)
+        posX = posX.coerceIn(-maxPosX, maxPosX)
+        posY = posY.coerceIn(-maxPosY, maxPosY)
     }
 
     /**
@@ -294,8 +230,6 @@ class PinchZoomRecyclerView @JvmOverloads constructor(
         override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
             isZoomingInProgress = true
             suppressLayout(true)
-            // Ensure parent doesn't intercept during scaling
-            parent?.requestDisallowInterceptTouchEvent(true)
             return true
         }
 
